@@ -1,0 +1,344 @@
+/**
+ * MathSecr 디자인 시스템 — CSS 토큰
+ * 자동 생성됨: node kit/build-tokens.mjs
+ * 소스 커밋: a7f7a0b (2026-09-26)
+ *
+ * 직접 수정하지 마세요.
+ * build-tokens.mjs를 수정한 뒤 node kit/build-tokens.mjs로 재생성하세요.
+ */
+
+:root {
+
+  /* ───────────────────────────────────────────
+     폰트
+  ─────────────────────────────────────────── */
+  --ms-font-family: "Pretendard Variable";
+
+  /* 폰트 굵기 */
+  --ms-fw-300: 300;
+  --ms-fw-500: 500;
+  --ms-fw-600: 600;
+  --ms-fw-700: 700;
+
+  /* 폰트 크기 (px) */
+  --ms-font-caption-s: 11px;
+  --ms-font-caption-m: 12px;
+  --ms-font-body-s: 14px;
+  --ms-font-body-m: 16px;
+  --ms-font-body-l: 18px;
+  --ms-font-headline-s: 20px;
+  --ms-font-headline-m: 24px;
+  --ms-font-headline-l: 26px;
+  --ms-font-headline-xl: 30px;
+
+  /* 줄 높이 (px) */
+  --ms-lh-16: 16px;
+  --ms-lh-18: 18px;
+  --ms-lh-20: 20px;
+  --ms-lh-22: 22px;
+  --ms-lh-24: 24px;
+  --ms-lh-26: 26px;
+  --ms-lh-32: 32px;
+  --ms-lh-34: 34px;
+  --ms-lh-40: 40px;
+
+  /* ───────────────────────────────────────────
+     공간 / 형태
+  ─────────────────────────────────────────── */
+  /* 간격 (px) */
+  --ms-space-0: 0px;
+  --ms-space-2: 2px;
+  --ms-space-4: 4px;
+  --ms-space-6: 6px;
+  --ms-space-8: 8px;
+  --ms-space-10: 10px;
+  --ms-space-12: 12px;
+  --ms-space-14: 14px;
+  --ms-space-16: 16px;
+  --ms-space-20: 20px;
+  --ms-space-24: 24px;
+  --ms-space-28: 28px;
+  --ms-space-32: 32px;
+  --ms-space-36: 36px;
+  --ms-space-40: 40px;
+  --ms-space-48: 48px;
+  --ms-space-56: 56px;
+  --ms-space-64: 64px;
+
+  /* 모서리 반경 */
+  --ms-radius-0: 0px;
+  --ms-radius-2: 2px;
+  --ms-radius-4: 4px;
+  --ms-radius-6: 6px;
+  --ms-radius-8: 8px;
+  --ms-radius-10: 10px;
+  --ms-radius-12: 12px;
+  --ms-radius-16: 16px;
+  --ms-radius-20: 20px;
+  --ms-radius-24: 24px;
+  --ms-radius-32: 32px;
+  --ms-radius-circle: 9999px;
+
+  /* ───────────────────────────────────────────
+     색상 — 원시값
+  ─────────────────────────────────────────── */
+  /* white */
+  --ms-white-050: #ffffff;
+  /* grey */
+  --ms-grey-100: #e5e5e8;
+  --ms-grey-200: #cacacf;
+  --ms-grey-300: #afafb8;
+  --ms-grey-400: #9494a0;
+  --ms-grey-500: #797988;
+  --ms-grey-600: #61616d;
+  --ms-grey-700: #494952;
+  --ms-grey-800: #313138;
+  --ms-grey-900: #19191c;
+  --ms-grey-050: #f5f5f7;
+  --ms-grey-075: #ededed;
+  /* blue */
+  --ms-blue-100: #d1d3ff;
+  --ms-blue-200: #a4a6ff;
+  --ms-blue-300: #757aff;
+  --ms-blue-400: #484dff;
+  --ms-blue-500: #2d34ff;
+  --ms-blue-600: #1921ff;
+  --ms-blue-700: #0008ea;
+  --ms-blue-800: #0006bd;
+  --ms-blue-900: #00058f;
+  --ms-blue-050: #e6e6ff;
+  --ms-blue-020: #e7eaf5;
+  --ms-blue-025: #f4f6ff;
+  --ms-blue-075: #b2b2c9;
+  --ms-blue-030: #d4d9ed;
+  /* orange */
+  --ms-orange-100: #fde4cd;
+  --ms-orange-200: #fbcb9e;
+  --ms-orange-300: #fab172;
+  --ms-orange-400: #f9994b;
+  --ms-orange-500: #ff8000;
+  --ms-orange-600: #f87526;
+  --ms-orange-700: #e16b23;
+  --ms-orange-800: #af541b;
+  --ms-orange-900: #803f14;
+  --ms-orange-050: #fef0e3;
+  /* purple */
+  --ms-purple-100: #e4dcec;
+  --ms-purple-200: #e5d2f2;
+  --ms-purple-300: #a55fff;
+  --ms-purple-400: #5d0fc3;
+  --ms-purple-050: #f1ecf5;
+  /* brown */
+  --ms-brown-100: #dbd1ca;
+  --ms-brown-050: #eae2dc;
+  /* green */
+  --ms-green-100: #d8e3c7;
+  --ms-green-050: #ebf2e1;
+  /* yellow */
+  --ms-yellow-50: #fffce9;
+  --ms-yellow-100: #fff570;
+  --ms-yellow-200: #ffd670;
+  --ms-yellow-400: #937844;
+  /* red */
+  --ms-red-100: #fff3f3;
+  --ms-red-200: #ffc7c7;
+  --ms-red-300: #ff4f4f;
+  --ms-red-400: #e64747;
+  --ms-red-500: #d03333;
+  /* black */
+  --ms-black-050: #000000;
+  /* opacityBlack */
+  --ms-opacity-black-100: #19191c1f;
+  --ms-opacity-black-150: #19191c3d;
+  --ms-opacity-black-200: #19191c52;
+  --ms-opacity-black-300: #19191c7a;
+  --ms-opacity-black-400: #19191c99;
+  --ms-opacity-black-500: #19191cb8;
+  --ms-opacity-black-050: #19191c14;
+  /* opacityWhite */
+  --ms-opacity-white-100: #ffffff1f;
+  --ms-opacity-white-150: #ffffff3d;
+  --ms-opacity-white-200: #ffffff52;
+  --ms-opacity-white-300: #ffffff7a;
+  --ms-opacity-white-400: #ffffff99;
+  --ms-opacity-white-500: #ffffffb8;
+  --ms-opacity-white-050: #ffffff14;
+  /* opacityRed */
+  --ms-opacity-red-500: #ee1111a1;
+  /* utility */
+  --ms-utility-100: #ffc7c7;
+  --ms-utility-200: #fff2ca;
+  --ms-utility-300: #d3ead0;
+  --ms-utility-400: #a0d999;
+  --ms-utility-500: #dae9ec;
+  --ms-utility-600: #dae6fa;
+  --ms-utility-700: #a9c1ff;
+  --ms-utility-800: #e5d2f2;
+  --ms-utility-900: #e9e9e9;
+  --ms-utility-050: #ffeae8;
+  /* paper */
+  --ms-paper-100: #2024b2;
+  --ms-paper-200: #fd6254;
+  --ms-paper-300: #b43e33;
+  --ms-paper-400: #05ac6c;
+  --ms-paper-500: #00764b;
+  --ms-paper-600: #f7b832;
+  --ms-paper-700: #dd8500;
+  --ms-paper-050: #4063ff;
+  --ms-paper-test-primary: #fd6254;
+  --ms-paper-test-secondary: #b43e33;
+  --ms-paper-re-test-primary: #f7b832;
+  --ms-paper-re-test-secondary: #dd8500;
+  --ms-paper-workbook-primary: #4063ff;
+  --ms-paper-workbook-secondary: #2024b2;
+  --ms-paper-re-workbook-primary: #05ac6c;
+  --ms-paper-re-workbook-secondary: #00764b;
+
+  /* ───────────────────────────────────────────
+     색상 — 의미값 (semantic)
+  ─────────────────────────────────────────── */
+  /* bg */
+  --ms-bg-fill-success: #f4f6ff;
+  --ms-bg-fill-error: #fff3f3;
+  --ms-bg-fill-inverse-grey: #f5f5f7;
+  --ms-bg-fill-dimmer: #19191c99;
+  --ms-bg-fill-primary: #2d34ff;
+  --ms-bg-fill-secondary: #ff8000;
+  --ms-bg-fill-tertiary-light: #313138;
+  --ms-bg-fill-subtle: #9494a0;
+  --ms-bg-fill-disabled: #e5e5e8;
+  --ms-bg-fill-primary-light: #d1d3ff;
+  --ms-bg-fill-secondary-light: #fde4cd;
+  --ms-bg-fill-inverse-white: #ffffff;
+  --ms-bg-fill-tertiary-dark: #19191c;
+  --ms-bg-fill-inverse-grey-dark: #ededed;
+  --ms-bg-fill-opacity-dark: #19191c1f;
+  --ms-bg-fill-opacity-light: #19191c14;
+  --ms-bg-fill-opacity-inverse-light: #ffffff3d;
+  --ms-bg-fill-opacity-inverse-dark: #ffffff99;
+  --ms-bg-fill-tertiary: #61616d;
+  --ms-bg-fill-dimmer-red: #ee1111a1;
+  --ms-bg-profile-brown-light: #eae2dc;
+  --ms-bg-profile-purple-light: #f1ecf5;
+  --ms-bg-profile-green-light: #ebf2e1;
+  --ms-bg-profile-blue-light: #e7eaf5;
+  --ms-bg-profile-none: #e5e5e8;
+  --ms-bg-profile-brown-dark: #dbd1ca;
+  --ms-bg-profile-purple-dark: #e4dcec;
+  --ms-bg-profile-green-dark: #d8e3c7;
+  --ms-bg-profile-blue-dark: #d4d9ed;
+  /* system */
+  --ms-system-negative-error: #ff4f4f;
+  --ms-system-negative-incorrect: #ff4f4f;
+  --ms-system-negative-danger: #ff4f4f;
+  --ms-system-negative-destructive: #ff4f4f;
+  --ms-system-positive-success: #2d34ff;
+  --ms-system-positive-correct: #2d34ff;
+  --ms-system-point-inner-text: #fff570;
+  --ms-system-point-inner-text2: #5d0fc3;
+  /* button */
+  --ms-button-text-inverse: #ffffff;
+  --ms-button-text-white-disabled: #cacacf;
+  --ms-button-text-subtle: #313138;
+  --ms-button-text-default: #2d34ff;
+  --ms-button-text-black-disabled: #afafb8;
+  --ms-button-text-blue-light-disabled: #d1d3ff;
+  --ms-button-text-red-disabled: #fff3f3;
+  --ms-button-text-grey-disabled: #cacacf;
+  --ms-button-text-blue-primary-disabled: #cacacf;
+  --ms-button-text-opacity-disabled: #cacacf;
+  --ms-button-bg-primary-default: #2d34ff;
+  --ms-button-bg-primary-hover: #0008ea;
+  --ms-button-bg-secondary-default: #313138;
+  --ms-button-bg-secondary-hover: #19191c;
+  --ms-button-bg-tertiary-default: #f5f5f7;
+  --ms-button-bg-tertiary-hover: #e5e5e8;
+  --ms-button-bg-subtle-grey-disabled: #ededed;
+  --ms-button-bg-subtle-blue-default: #e6e6ff;
+  --ms-button-bg-opacity-default: #19191c52;
+  --ms-button-bg-subtle-grey-default: #e5e5e8;
+  --ms-button-bg-destructive-default: #ff4f4f;
+  --ms-button-bg-destructive-hover: #e64747;
+  --ms-button-bg-primary-pressed: #0006bd;
+  --ms-button-bg-secondary-pressed: #000000;
+  --ms-button-bg-tertiary-pressed: #cacacf;
+  --ms-button-bg-subtle-grey-hover: #cacacf;
+  --ms-button-bg-subtle-grey-pressed: #afafb8;
+  --ms-button-bg-subtle-blue-hover: #d1d3ff;
+  --ms-button-bg-subtle-blue-pressed: #a4a6ff;
+  --ms-button-bg-destructive-pressed: #d03333;
+  --ms-button-bg-primary-disabled: #b2b2c9;
+  --ms-button-bg-secondary-disabled: #9494a0;
+  --ms-button-bg-tertiary-disabled: #f5f5f7;
+  --ms-button-bg-subtle-blue-disabled: #f4f6ff;
+  --ms-button-bg-destructive-disabled: #ffc7c7;
+  --ms-button-bg-opacity-hover: #19191c7a;
+  --ms-button-bg-opacity-pressed: #19191c99;
+  --ms-button-bg-opacity-disabled: #19191c1f;
+  --ms-button-bg-opacity-light: #19191c3d;
+  --ms-button-bg-inverse: #ffffff;
+  --ms-button-bg-inverse-hover: #e5e5e8;
+  --ms-button-bg-inverse-pressed: #cacacf;
+  --ms-button-bg-inverse-disabled: #ededed;
+  --ms-button-bg-subtle-grey: #e5e5e8;
+  --ms-button-bg-subtle-blue: #e6e6ff;
+  /* icon */
+  --ms-icon-primary: #61616d;
+  --ms-icon-secondary: #2d34ff;
+  --ms-icon-tertiary: #ff8000;
+  --ms-icon-subtle: #9494a0;
+  --ms-icon-inverse: #ffffff;
+  --ms-icon-disabled: #e5e5e8;
+  --ms-icon-info: #cacacf;
+  --ms-icon-error: #ff4f4f;
+  --ms-icon-opacity-inverse100: #ffffffb8;
+  --ms-icon-opacity: #19191cb8;
+  --ms-icon-opacity-inverse050: #ffffff99;
+  /* line */
+  --ms-line-strong: #cacacf;
+  --ms-line-subtle: #f5f5f7;
+  --ms-line-medium: #e5e5e8;
+  --ms-line-opacity: #19191c3d;
+  --ms-line-heavy: #9494a0;
+  /* text */
+  --ms-text-default-primary: #19191c;
+  --ms-text-default-secondary: #313138;
+  --ms-text-default-tertiary: #494952;
+  --ms-text-default-info: #797988;
+  --ms-text-default-placeholder: #afafb8;
+  --ms-text-default-disabled: #cacacf;
+  --ms-text-default-inverse: #ffffff;
+  --ms-text-default-opacity050: #19191c7a;
+  --ms-text-default-opacity-inverse100: #ffffffb8;
+  --ms-text-default-opacity-inverse050: #ffffff99;
+  --ms-text-default-opacity100: #19191cb8;
+  --ms-text-brand-primary: #2d34ff;
+  --ms-text-brand-secondary: #484dff;
+  --ms-text-brand-tertiary: #0006bd;
+  --ms-text-brand-inverse-light: #e6e6ff;
+  --ms-text-brand-inverse-dark: #d1d3ff;
+  --ms-text-caution-primary: #ff4f4f;
+  --ms-text-caution-secondary: #e64747;
+  --ms-text-brand2-primary: #ff8000;
+  --ms-text-brand2-secondary: #e16b23;
+  /* tag */
+  --ms-tag-bg-light-green: #d3ead0;
+  --ms-tag-bg-yellow: #fff2ca;
+  --ms-tag-bg-purple: #e5d2f2;
+  --ms-tag-bg-grey: #e9e9e9;
+  --ms-tag-bg-light-red: #ffeae8;
+  --ms-tag-bg-green: #a0d999;
+  --ms-tag-bg-teal: #dae9ec;
+  --ms-tag-bg-blue: #a9c1ff;
+  --ms-tag-bg-red: #ffc7c7;
+  --ms-tag-bg-light-blue: #dae6fa;
+  --ms-tag-bg-opacity: #19191c1f;
+  --ms-tag-bg-light-grey: #f5f5f7;
+  --ms-tag-bg-dark-purple: #a55fff;
+  --ms-tag-text-opacity: #19191c99;
+  --ms-tag-text-inverse: #ffffff;
+  /* cell */
+  --ms-cell-replace-primary: #fffce9;
+  --ms-cell-replace-secondary: #ffd670;
+  --ms-cell-replace-tertiary: #937844;
+}

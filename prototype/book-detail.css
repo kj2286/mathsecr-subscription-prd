@@ -1,0 +1,15 @@
+.book-info-benefit{padding:var(--ms-space-20);border-radius:var(--ms-radius-16);background:var(--ms-bg-fill-success);margin-bottom:var(--ms-space-24)}
+.book-info-benefit strong{display:flex;align-items:center;gap:var(--ms-space-8);font-size:var(--ms-font-body-s);font-weight:var(--ms-fw-600);color:var(--ms-text-brand-primary)}
+.book-info-benefit p{font-size:var(--ms-font-body-s);color:var(--ms-text-default-tertiary);margin-top:var(--ms-space-8)}
+.book-info-layout{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:var(--ms-space-32);align-items:start}
+.book-info-copy h3{font-size:var(--ms-font-headline-s);line-height:var(--ms-lh-26);margin-top:var(--ms-space-12)}
+.book-info-badges{display:flex;gap:var(--ms-space-6);flex-wrap:wrap}
+.book-info-copy .details{grid-template-columns:132px minmax(0,1fr);font-size:var(--ms-font-body-s);gap:var(--ms-space-14)}
+.book-info-cover{margin:0;text-align:center}.book-info-cover img{display:block;width:100%;aspect-ratio:180/256;object-fit:contain;border:1px solid var(--ms-line-medium);border-radius:var(--ms-radius-24);background:var(--ms-bg-fill-inverse-white)}
+.book-info-cover figcaption{font-size:var(--ms-font-caption-m);color:var(--ms-text-default-info);margin-top:var(--ms-space-8)}
+.book-info-sample{font-size:var(--ms-font-caption-m);color:var(--ms-text-default-info);padding-top:var(--ms-space-16);border-top:1px solid var(--ms-line-medium)}
+.book-info-expired{margin-top:var(--ms-space-12);color:var(--ms-text-caution-primary);font-size:var(--ms-font-body-s)}
+.book-cover-preview{text-align:center}.book-cover-preview img{display:block;max-width:220px;max-height:360px;width:100%;object-fit:contain;margin:0 auto var(--ms-space-24);border-radius:var(--ms-radius-24)}
+.book-cover-preview h3{font-size:var(--ms-font-body-m);line-height:var(--ms-lh-24)}.book-cover-preview p{margin-top:var(--ms-space-12);font-size:var(--ms-font-caption-m);color:var(--ms-text-default-info)}
+@media(max-width:580px){.book-info-layout{grid-template-columns:1fr;gap:var(--ms-space-20)}.book-info-cover{grid-row:1;width:130px;margin:auto}.book-info-copy .details{grid-template-columns:115px minmax(0,1fr)}.book-info-copy h3{font-size:var(--ms-font-body-l)}}
+.book-info-cart{background:var(--ms-bg-fill-medium,#f5f5f7);border-color:transparent}

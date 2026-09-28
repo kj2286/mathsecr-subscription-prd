@@ -1,0 +1,132 @@
+{
+  "sha256": "17c97bac35a645ecc3c22204ece68483776912b62810552ad6180f9f057f5940",
+  "pageCount": 9,
+  "regions": [
+    {
+      "id": "sample-1",
+      "pageNumber": 1,
+      "questionId": "q1109861",
+      "label": "문항 1",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.8897705078125,
+        "width": 495.0,
+        "height": 260.52630615234375
+      }
+    },
+    {
+      "id": "sample-2",
+      "pageNumber": 2,
+      "questionId": "q1109862",
+      "label": "문항 2",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88978576660156,
+        "width": 495.0,
+        "height": 92.63157653808594
+      }
+    },
+    {
+      "id": "sample-3",
+      "pageNumber": 3,
+      "questionId": "q1109863",
+      "label": "문항 3",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88975524902344,
+        "width": 495.0,
+        "height": 193.94740295410156
+      }
+    },
+    {
+      "id": "sample-4",
+      "pageNumber": 4,
+      "questionId": "q1109864",
+      "label": "문항 4",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.8897705078125,
+        "width": 495.0,
+        "height": 94.5614013671875
+      }
+    },
+    {
+      "id": "sample-5",
+      "pageNumber": 5,
+      "questionId": "q1109865",
+      "label": "문항 5",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.8897705078125,
+        "width": 495.0,
+        "height": 117.71929931640625
+      }
+    },
+    {
+      "id": "sample-6",
+      "pageNumber": 6,
+      "questionId": "q1109866",
+      "label": "문항 6",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88978576660156,
+        "width": 495.0,
+        "height": 152.4561004638672
+      }
+    },
+    {
+      "id": "sample-7",
+      "pageNumber": 7,
+      "questionId": "q1109868",
+      "label": "문항 7",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88975524902344,
+        "width": 495.0,
+        "height": 178.50880432128906
+      }
+    },
+    {
+      "id": "sample-8",
+      "pageNumber": 8,
+      "questionId": "q1109869",
+      "label": "문항 8",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88975524902344,
+        "width": 495.0,
+        "height": 209.38600158691406
+      }
+    },
+    {
+      "id": "sample-9",
+      "pageNumber": 9,
+      "questionId": "q1109872",
+      "label": "문항 9",
+      "confidence": "verified",
+      "text": "",
+      "rect": {
+        "x": 50.0,
+        "y": 71.88976287841797,
+        "width": 495.0,
+        "height": 108.07019805908203
+      }
+    }
+  ]
+}

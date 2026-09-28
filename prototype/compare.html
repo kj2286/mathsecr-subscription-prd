@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>수학비서 · 구독안 비교</title>
+  <link rel="icon" href="assets/icons/icon_db.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="compare.css">
+</head>
+<body>
+  <div class="compare-shell">
+    <header class="compare-header">
+      <div class="compare-topline">
+        <a class="compare-brand" href="#original" aria-label="수학비서 구독안 비교 · 최초안"><strong>수학비서</strong><span>구독안 비교</span></a>
+        <nav class="compare-tabs" role="tablist" aria-label="비교할 화면">
+          <button type="button" id="tab-original" role="tab" aria-controls="panel-original" aria-selected="true" tabindex="0" data-view="original">최초 구독안</button>
+          <button type="button" id="tab-latest" role="tab" aria-controls="panel-latest" aria-selected="false" tabindex="-1" data-view="latest">최종 수정안</button>
+          <button type="button" id="tab-changes" role="tab" aria-controls="panel-changes" aria-selected="false" tabindex="-1" data-view="changes">PRD 변경 비교</button>
+        </nav>
+        <a id="open-current" class="compare-open" href="./original.html#mypage/subscription" target="_blank" rel="noopener">현재 화면 새 탭 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M11 3h6v6M17 3l-9 9M8 4H4v12h12v-4"/></svg></a>
+      </div>
+      <nav class="compare-variants" aria-label="세 가지 화면 비교"><a href="./index.html?variant=a#library">A 대표님 원안</a><a href="./index.html?variant=b#library">B 수학비서 확장</a><a href="./index.html?variant=c#library">C 단원 중심 문제은행</a></nav>
+      <div class="compare-toolbar">
+        <label class="compare-shortcut">바로가기 <select id="screen-shortcut" aria-label="현재 시안의 바로가기"><option value="screen">화면</option><option value="account">구독 관리</option><option value="papers">문제지 만들기</option><option value="current" hidden>현재 화면</option></select></label>
+        <p id="view-note">탭을 바꿔도 각 화면의 스크롤과 입력 상태가 유지됩니다.</p>
+        <span id="frame-status" role="status" aria-live="polite"></span>
+      </div>
+    </header>
+    <main class="compare-main">
+      <section id="panel-original" class="compare-panel" role="tabpanel" aria-labelledby="tab-original"><div class="frame-placeholder">최초 구독안을 불러오는 중입니다.</div></section>
+      <section id="panel-latest" class="compare-panel" role="tabpanel" aria-labelledby="tab-latest" hidden><div class="frame-placeholder">최종 수정안을 불러오는 중입니다.</div></section>
+      <section id="panel-changes" class="compare-panel changes-panel" role="tabpanel" aria-labelledby="tab-changes" tabindex="0" hidden><div id="changes-content" class="changes-content"><p class="data-message" role="status">변경 비교 자료를 불러오는 중입니다.</p></div></section>
+    </main>
+  </div>
+  <script type="module" src="compare.js"></script>
+</body>
+</html>
