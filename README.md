@@ -2,11 +2,13 @@
 
 교재 DB 구독과 문제은행 구독의 핵심 기능 정의서입니다. 수학비서 B안 기준 검토안입니다.
 
-[PRD 바로 보기](https://kj2286.github.io/mathsecr-subscription-prd/)
+[PRD 바로 보기](https://kj2286.github.io/mathsecr-subscription-prd/) · [B안 프로토타입](https://subscription-question-bank.vercel.app/?variant=b#library)
+
+DB 구독과 문제은행 구독은 각각 상품 단위입니다. 두 상품 모두 전체 학년을 이용하며, 학년은 검색 필터로만 사용합니다. DB 구독 제외 자료는 별도로 구분합니다.
 
 ## 문서 내용
 
-- 교재 탐색·구독 범위·여러 DB 선택·부분 구매·보관
+- 교재 탐색·상품 단위 구독·여러 DB 선택·부분 구매·보관
 - 문제은행 검색·문항 선택·랜덤 출제·문제지 저장
 - 구독 신청·상품별 권한·해지·만료·재구독
 - 완료 기준과 결정할 정책
