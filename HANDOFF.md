@@ -5,10 +5,11 @@
 - 공개 대상은 index.html, README, 글꼴 라이선스와 이 인계 기록입니다.
 
 ## 멈춘 지점
-- GitHub 공개 업로드와 Pages 발행 진행 중.
+- GitHub 공개 업로드와 Pages 발행 완료. 로그인 없는 HTTP 200 응답과 index.html 일치를 확인했습니다.
+- 공개 링크: https://kj2286.github.io/mathsecr-subscription-prd/
 
 ## 다음 할 일
-- 공개 링크 확인 후 발행 결과 기록.
+- 문서의 검토 의견을 반영하고 index.html을 갱신합니다.
 
 ## 미해결 이슈 / 주의
 - 포함 교재·학년·과목과 변경 규칙, 개별·잔여 문항 가격, 갱신·실패 유예·환불 기준은 검토가 필요합니다.
