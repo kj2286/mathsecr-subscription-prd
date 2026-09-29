@@ -2,14 +2,16 @@
 
 수학비서 B안의 기능 정의서와 정적 프로토타입입니다. DB 구독은 월 49,000원, 문제은행 구독은 월 39,000원이며 각각 전체 학년을 이용합니다. 학년은 검색 필터이고 DB 구독 제외 자료는 별도로 구분합니다.
 
-[PRD 보기](https://kj2286.github.io/mathsecr-subscription-prd/) · [B안 문제은행](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-samples-cart#bank/중1) · [내신시험지 DB](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-samples-cart#library/school) · [교재 DB](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-samples-cart#library/book)
+[PRD 보기](https://kj2286.github.io/mathsecr-subscription-prd/) · [B안 문제은행](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-source-layout#bank/중1) · [내신시험지 DB](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-source-layout#library/school) · [교재 DB](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-source-layout#library/book)
+
+[출처찾기 & DB화](https://subscription-question-bank.vercel.app/?variant=b&revision=20260929-source-layout#source)
 
 ## 최신 기능
 
 - 미보유 문항도 체크·전체 선택할 수 있습니다. 문제지에 담을 때 선택을 유지한 채 문항 구매나 해당 상품 구독을 안내하고, 이용권을 확인하면 문제지 만들기로 돌아갑니다.
 - 내신·교재 DB는 개별 구매와 DB 구독을 모두 지원합니다. 고정 장바구니에서 담긴 개수와 자료를 확인합니다.
 - 지역 선택 목록은 검색 조건과 독립적으로 유지합니다. 시군구까지 관심지역으로 저장하고, 바로 아래에서 새 시험지 알림을 설정한 학교를 확인·해제합니다.
-- 업로드한 문항과 출처 결과를 나란히 확인하며 한 문항 또는 여러 문항을 구매합니다. 내 문제지에서는 여러 DB 선택·랜덤 출제·편집·저장 기능을 사용합니다.
+- 출처찾기는 왼쪽에 작은 업로드 문항 목록, 가운데에 선택한 원본, 오른쪽에 2열 출처 결과를 표시합니다. 목록에서 문항을 바꿔도 여러 문항의 구매 체크를 유지합니다. 내 문제지에서는 여러 DB 선택·랜덤 출제·편집·저장 기능을 사용합니다.
 - 실제 수집 12문항과 기능 확인용 예시 30문항을 구분합니다. 예시는 실제 시험지 문항으로 표시하지 않으며 업로드 출처 검색 후보에도 넣지 않습니다.
 
 ## 저장소 구성
@@ -28,9 +30,9 @@
 python3 -m http.server 8000
 ```
 
-[로컬 PRD](http://localhost:8000/) 또는 [로컬 문제은행](http://localhost:8000/prototype/?variant=b&revision=20260929-samples-cart#bank/중1)을 엽니다. JavaScript 모듈과 PDF 파일을 읽으므로 프로토타입은 HTML 파일을 직접 여는 대신 서버 주소로 접속합니다. 별도 설치나 빌드는 필요하지 않습니다.
+[로컬 PRD](http://localhost:8000/) 또는 [로컬 문제은행](http://localhost:8000/prototype/?variant=b&revision=20260929-source-layout#bank/중1)을 엽니다. JavaScript 모듈과 PDF 파일을 읽으므로 프로토타입은 HTML 파일을 직접 여는 대신 서버 주소로 접속합니다. 별도 설치나 빌드는 필요하지 않습니다.
 
-GitHub Pages는 `main` 브랜치의 루트에서 발행합니다. [GitHub Pages 프로토타입](https://kj2286.github.io/mathsecr-subscription-prd/prototype/?variant=b&revision=20260929-samples-cart#bank/중1)도 같은 정적 파일을 사용합니다.
+GitHub Pages는 `main` 브랜치의 루트에서 발행합니다. [GitHub Pages 프로토타입](https://kj2286.github.io/mathsecr-subscription-prd/prototype/?variant=b&revision=20260929-source-layout#bank/중1)도 같은 정적 파일을 사용합니다.
 
 ## 구현 범위와 미정 정책
 
