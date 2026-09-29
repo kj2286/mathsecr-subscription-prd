@@ -7,6 +7,7 @@ export const SOURCE_TABS = [
   ['all', '전체'], ['PC', '거의 같은 문제'], ['NC', '숫자변형 문제'],
   ['5depth', '유사 문제'], ['4depth', '같은 유형 문제'], ['MT', '다른 단원 유사문제'],
 ];
+export const SOURCE_RESULT_TABS = [...SOURCE_TABS, ['unitCandidates', '같은 단원 후보']];
 
 export function defaultSourceSettings() {
   return {
@@ -32,6 +33,7 @@ export function sourceCategory(q, base) {
   if (a.length >= 4 && b.length >= 4 && a.slice(0, 4).join('>') === b.slice(0, 4).join('>')) return '4depth';
   const tags = new Set((base.tags || []).map(norm));
   if (q.grade === base.grade && a[1] !== b[1] && (q.tags || []).some(tag => tags.has(norm(tag)))) return 'MT';
+  if (q.grade === base.grade && q.curriculum === base.curriculum && a.length > 1 && b.length > 1 && a[0] && a[1] && a[0] === b[0] && a[1] === b[1]) return 'unitCandidates';
   return '';
 }
 
@@ -93,7 +95,7 @@ export function readSourceDefaults(storage) {
 }
 
 export function createSourceView(settings = defaultSourceSettings()) {
-  return { document:null, showOriginal:false, uploadScroll:0, uploadScrollLeft:0, controller:null, items:[], activeRegion:'', page:1, pageCanvases:new Map(), manual:false, manualSequence:0, selectionVersion:0, cropBusy:false, reading:false, readPages:0, error:'', phase:'start', baseId:'', sourceDBId:'', file:null, objectURL:'', matched:false, tab:'all', grade:'', answerType:'all', include:'', exclude:'', selected:new Set(), settings:structuredClone(settings) };
+  return { document:null, showOriginal:false, uploadScroll:0, uploadScrollLeft:0, uploadSelected:new Set(), uploadSaving:false, controller:null, items:[], activeRegion:'', page:1, pageCanvases:new Map(), manual:false, manualSequence:0, selectionVersion:0, cropBusy:false, reading:false, readPages:0, error:'', phase:'start', baseId:'', sourceDBId:'', file:null, objectURL:'', matched:false, tab:'all', grade:'', answerType:'all', include:'', exclude:'', selected:new Set(), settings:structuredClone(settings) };
 }
 export function clearSourceFilters(view, settings = defaultSourceSettings()) {
   view.tab='all';view.grade='';view.answerType='all';view.include='';view.exclude='';view.selected.clear();view.settings=structuredClone(settings);
@@ -278,9 +280,9 @@ export function acquireSourceSelection(ctx,view,ids,redraw) {
 export function sourceRegionCandidates(region,questions) {
   questions=questions.filter(q=>q.sourceSearchEligible!==false);
   const verified=region?.confidence==='verified'&&questions.find(q=>q.id===region.questionId);
-  if(verified)return {base:verified,verified:true,questions:questions.filter(q=>sourceCategory(q,verified))};
+  if(verified)return {base:verified,verified:true,exactId:region.fingerprintVerified===true?verified.id:'',questions:questions.filter(q=>sourceCategory(q,verified))};
   const text=norm(region?.text),matches=text?questions.filter(q=>{const expected=norm(q.text);return expected.length>=16&&text.includes(expected);}):[];
-  return {base:matches[0]||null,verified:false,questions:matches};
+  return {base:matches[0]||null,verified:false,exactId:'',questions:matches};
 }
 export function selectDocumentRegion(view,id) {
   const item=view.items.find(region=>region.id===id);if(!item)return false;
@@ -303,29 +305,78 @@ function regionResults(ctx,view,item,tab=view.tab) {
   const filters={...view.settings,grade:view.grade,answerType:view.answerType,include:view.include,exclude:view.exclude,tab};
   return {...evidence,list:filterSourceQuestions(evidence.questions,evidence.base,filters,resultScope(ctx))};
 }
+export function setSourceUploadSelection(view,id,checked) {
+  if(!view.items.some(item=>item.id===id&&item.imageUrl))return false;
+  checked?view.uploadSelected.add(id):view.uploadSelected.delete(id);return true;
+}
+export async function saveSourceUploads(ctx,view,ids,redraw=()=>{}) {
+  if(view.uploadSaving)return;
+  const selected=new Set(ids),items=view.items.filter(item=>selected.has(item.id));
+  if(!items.length||items.some(item=>!item.imageUrl))return ctx.ui.toast('DB화할 업로드 문항을 선택해 주세요.');
+  if(typeof ctx.saveUploadedQuestions!=='function')return ctx.ui.toast('업로드 문항 저장 기능을 불러오지 못했습니다.');
+  const doc=view.document,file=view.file;
+  view.uploadSaving=true;redraw();
+  try {
+    const result=await ctx.saveUploadedQuestions({fileName:file?.name||'업로드 문항',items:items.map(item=>({...item,rect:item.rect?{...item.rect}:undefined}))});
+    if(view.document!==doc||view.file!==file)return;
+    if(result?.ok)items.forEach(item=>view.uploadSelected.delete(item.id));
+    return result;
+  } catch(error) {
+    if(view.document===doc&&view.file===file)ctx.ui.toast(error.message||'업로드 문항을 저장하지 못했습니다.');
+  } finally {
+    if(view.document===doc&&view.file===file){view.uploadSaving=false;redraw();}
+  }
+}
 export function sourceUploadCards(ctx,view) {
   const {esc}=ctx.ui;
-  return view.items.map((item,index)=>{
-    const evidence=sourceRegionCandidates(item,ctx.questions),route=evidence.base?sourceResultRoutes(ctx,[evidence.base]).find(r=>r.source):null;
-    return `<article class="sf-upload-card ${item.id===view.activeRegion?'active':''}" data-upload-card="${esc(item.id)}"><header><label class="checkbox"><input type="checkbox" data-source-upload-check="${esc(route?.key||'')}" aria-label="${esc(item.label)} 구매 선택" ${route&&view.selected.has(route.key)?'checked':''} ${route?'':'disabled'}><span>${esc(item.label)}</span></label><small>${item.pageNumber}페이지</small></header><button type="button" class="sf-upload-focus" data-source-item="${esc(item.id)}" aria-label="${esc(item.label)} 출처 보기" aria-pressed="${item.id===view.activeRegion}">${item.imageUrl?`<img src="${esc(item.imageUrl)}" alt="${esc(item.label)} · 업로드 원본" ${item.imageWidth&&item.imageHeight?`width="${Number(item.imageWidth)}" height="${Number(item.imageHeight)}"`:""} loading="lazy">`:'<span>문항 이미지를 불러오고 있습니다.</span>'}</button><footer><span>${route?evidence.verified?'출처 확인':'텍스트 일치 후보':item.confidence==='manual'?'직접 선택 · 출처 없음':'자동 분리 · 영역 확인 필요'}</span></footer></article>`;
+  return view.items.map(item=>{
+    const evidence=sourceRegionCandidates(item,ctx.questions);
+    return `<article class="sf-upload-card ${item.id===view.activeRegion?'active':''}" data-upload-card="${esc(item.id)}"><header><label class="checkbox"><input type="checkbox" data-source-upload-check="${esc(item.id)}" aria-label="${esc(item.label)} 원본 DB화 선택" ${view.uploadSelected?.has(item.id)?'checked':''} ${!item.imageUrl||view.uploadSaving?'disabled':''}><span>${esc(item.label)}</span></label><small>${item.pageNumber}페이지</small></header><button type="button" class="sf-upload-focus" data-source-item="${esc(item.id)}" aria-label="${esc(item.label)} 출처 보기" aria-pressed="${item.id===view.activeRegion}">${item.imageUrl?`<img src="${esc(item.imageUrl)}" alt="${esc(item.label)} · 업로드 원본" ${item.imageWidth&&item.imageHeight?`width="${Number(item.imageWidth)}" height="${Number(item.imageHeight)}"`:''} loading="lazy">`:'<span>문항 이미지를 불러오고 있습니다.</span>'}</button><footer><span>${evidence.exactId?'완전 동일한 문항 있음':evidence.base?'텍스트 일치 후보':item.confidence==='manual'?'직접 선택한 영역':'자동 분리 · 영역 확인 필요'}</span><button type="button" class="text-btn" data-source-save-upload="${esc(item.id)}" ${!item.imageUrl||view.uploadSaving?'disabled':''}>이 문항 DB화</button></footer></article>`;
   }).join('');
 }
-function sourceResultCard(ctx,view,entry,evidence) {
+const sourceDBFullyPurchased=(ctx,id)=>ctx.store.ownedDBs().some(db=>db.id===id&&db.remainingPurchaseCount===0);
+export function sourceResultCard(ctx,view,entry,evidence) {
   const {q,source,key,label,db}=entry,{esc,icon,questionCard}=ctx.ui;
-  return `<article class="sf-result-card" data-source-route="${esc(key)}">${q.id===evidence.base?.id?`<span class="sf-match-label">${evidence.verified?'확인한 출처 문항':'텍스트 일치 후보'}</span>`:''}<div class="sf-product-route"><strong>${esc(label)}</strong><span>${source==='bank'?'문제은행 구독 · 개별 구매':source==='db'?(db?.rentalEligible===false?'개별 구매':'DB 구독 · 개별 구매'):'구매할 수 없는 출처'}</span></div>${questionCard(q,{store:ctx.store,source:source||'db',selectable:!!source,selected:view.selected.has(key)})}${db?`<button class="text-btn sf-db-info" data-source-file="${esc(db.id)}">${source==='bank'?'원출처 · ':''}${esc(db.title)} ${icon('chevron')}</button>`:''}${source?`<button class="btn sf-dbize" data-source-dbize="${esc(key)}">${ctx.store.canUseQuestion(q.id,source)?'문항 이용하기':'문항 구매 · '+(source==='bank'?'문제은행 구독':db?.rentalEligible===false?'개별 구매':'DB 구독')}</button>`:''}</article>`;
+  const usable=!!source&&ctx.store.canUseQuestion(q.id,source),owned=!!source&&sourcePermanentlyOwned(ctx,entry);
+  const subscribed=!!source&&ctx.store.isActive(source),excluded=source==='db'&&db?.rentalEligible===false;
+  const canBuyDB=!!source&&db&&!sourceDBFullyPurchased(ctx,db.id);
+  const match=q.id===evidence.exactId?'완전 동일한 문항':q.id===evidence.base?.id?'텍스트 일치 후보':sourceCategory(q,evidence.base)==='unitCandidates'?'같은 단원 후보':'';
+  return `<article class="sf-result-card" data-source-route="${esc(key)}">${match?`<span class="sf-match-label ${q.id===evidence.exactId?'is-exact':''}">${match}</span>`:''}<div class="sf-product-route"><strong>${esc(label)}</strong><span>${source==='bank'?'문제은행 구독 · 개별 구매':source==='db'?(excluded?'개별 구매':'DB 구독 · 개별 구매'):'구매할 수 없는 출처'}</span></div>${questionCard(q,{store:ctx.store,source:source||'db',selectable:!!source,selected:view.selected.has(key)})}${db?`<button class="text-btn sf-db-info" data-source-file="${esc(db.id)}">${source==='bank'?'원출처 · ':''}${esc(db.title)} ${icon('chevron')}</button>`:''}${source?`<div class="sf-card-access">${owned?'<span>문항 구매 완료</span>':subscribed&&!excluded?`<span>${source==='bank'?'문제은행':'DB'} 구독 중</span>`:excluded?'<span>DB 구독 제외 자료</span>':''}${db&&!canBuyDB?'<span>원출처 DB 구매 완료</span>':''}</div><div class="sf-result-actions">${!owned?`<button class="btn" data-source-buy="${esc(key)}">문항 구매하기</button>`:''}${canBuyDB?`<button class="btn" data-source-buy-db="${esc(key)}" aria-label="${esc(db.title)} DB 전체 구매">DB 전체 구매</button>`:''}${!subscribed&&!excluded?`<button class="btn primary" data-source-subscribe="${esc(key)}">${source==='bank'?'문제은행 구독':'DB 구독'}</button>`:''}${usable?`<button class="btn primary" data-source-add="${esc(key)}">문제지에 담기</button>`:''}</div>${source==='bank'&&canBuyDB?'<small class="sf-card-purchase-note">DB 전체 구매는 원출처 자료 DB에 적용됩니다.</small>':''}`:''}</article>`;
+}
+export function bindSourceResultPurchases(root,ctx,view,redraw) {
+  const entry=key=>resolveSourceSelection(ctx,[key]).at(0);
+  root.querySelectorAll('[data-source-buy]').forEach(button=>button.onclick=()=>{const route=entry(button.dataset.sourceBuy);if(route)acquireSourceSelection(ctx,view,[route],redraw);});
+  root.querySelectorAll('[data-source-buy-db]').forEach(button=>button.onclick=()=>{
+    const route=entry(button.dataset.sourceBuyDb);if(!route?.db||sourceDBFullyPurchased(ctx,route.db.id))return;
+    if(typeof ctx.commerce?.purchase!=='function')return ctx.ui.toast('DB 구매 정보를 불러오지 못했습니다.');
+    ctx.commerce.purchase(route.db.id,'direct');
+  });
+  root.querySelectorAll('[data-source-subscribe]').forEach(button=>button.onclick=()=>{
+    const route=entry(button.dataset.sourceSubscribe);if(!route||route.source==='db'&&route.db?.rentalEligible===false)return;
+    ctx.subscribe(route.source,redraw);
+  });
+  root.querySelectorAll('[data-source-add]').forEach(button=>button.onclick=()=>{
+    const route=entry(button.dataset.sourceAdd);if(!route)return;
+    if(!ctx.store.canUseQuestion(route.id,route.source))return acquireSourceSelection(ctx,view,[route],redraw);
+    ctx.addQuestions([route.id],route.source);
+  });
 }
 function bindResultActions(root,container,ctx,view,redraw,routes) {
   root.querySelectorAll('[data-source-settings]').forEach(b=>b.onclick=()=>settingsModal(container,ctx,view));
   root.querySelectorAll('[data-source-file]').forEach(b=>b.onclick=()=>ctx.openDB(b.dataset.sourceFile));
   root.querySelectorAll('[data-source-tab]').forEach(b=>{
     const select=id=>{view.tab=id;redraw();container.querySelector(`[data-source-tab="${id}"]`)?.focus();};b.onclick=()=>select(b.dataset.sourceTab);
-    b.onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const n=SOURCE_TABS.findIndex(([id])=>id===view.tab),next=e.key==='Home'?0:e.key==='End'?5:(n+(e.key==='ArrowRight'?1:-1)+6)%6;select(SOURCE_TABS[next][0]);};
+    b.onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const n=SOURCE_RESULT_TABS.findIndex(([id])=>id===view.tab),length=SOURCE_RESULT_TABS.length,next=e.key==='Home'?0:e.key==='End'?length-1:(n+(e.key==='ArrowRight'?1:-1)+length)%length;select(SOURCE_RESULT_TABS[next][0]);};
   });
   root.querySelector('#source-text-form')?.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.target);view.include=String(fd.get('include')||'').trim();view.exclude=String(fd.get('exclude')||'').trim();view.grade=String(fd.get('grade')||'');view.answerType=String(fd.get('answerType')||'all');redraw();});
   root.querySelectorAll('[data-source-clear]').forEach(button=>button.onclick=()=>{const selected=new Set(view.selected);clearSourceFilters(view);view.selected=selected;redraw();});
   root.querySelector('[data-source-all]')?.addEventListener('change',e=>{for(const r of routes.filter(r=>r.source))e.target.checked?view.selected.add(r.key):view.selected.delete(r.key);redraw();});
   root.querySelectorAll('[data-qcheck]').forEach(b=>b.onchange=()=>{const key=b.closest('[data-source-route]')?.dataset.sourceRoute;if(!key)return;b.checked?view.selected.add(key):view.selected.delete(key);redraw();});
-  root.querySelectorAll('[data-source-upload-check]').forEach(b=>b.onchange=()=>{if(!b.dataset.sourceUploadCheck||b.disabled)return;b.checked?view.selected.add(b.dataset.sourceUploadCheck):view.selected.delete(b.dataset.sourceUploadCheck);redraw();});
+  root.querySelectorAll('[data-source-upload-check]').forEach(b=>b.onchange=()=>{if(b.disabled)return;setSourceUploadSelection(view,b.dataset.sourceUploadCheck,b.checked);redraw();});
+  root.querySelector('[data-source-upload-all]')?.addEventListener('change',e=>{view.items.forEach(item=>setSourceUploadSelection(view,item.id,e.target.checked));redraw();});
+  root.querySelector('[data-source-save-uploads]')?.addEventListener('click',()=>saveSourceUploads(ctx,view,[...view.uploadSelected],redraw));
+  root.querySelectorAll('[data-source-save-upload]').forEach(button=>button.onclick=()=>saveSourceUploads(ctx,view,[button.dataset.sourceSaveUpload],redraw));
+  bindSourceResultPurchases(root,ctx,view,redraw);
   root.querySelectorAll('[data-source-dbize]').forEach(b=>b.onclick=()=>acquireSourceSelection(ctx,view,[b.dataset.sourceDbize],redraw));
   root.querySelectorAll('[data-source-acquire]').forEach(b=>b.onclick=()=>acquireSourceSelection(ctx,view,[...view.selected],redraw));
   root.querySelectorAll('[data-source-selection-clear]').forEach(b=>b.onclick=()=>{view.selected.clear();redraw();});
@@ -382,7 +433,7 @@ export function renderSource(container,ctx) {
       view.document=doc;view.matched=doc.isKnownSample;view.phase='workspace';view.reading=true;view.page=1;redraw();
       for(let n=1;n<=doc.pageCount;n++) {
         const regions=await doc.detectRegions(n);if(view.document!==doc||controller.signal.aborted)return;
-        for(const region of regions){const crop=await doc.cropRegion(n,region.rect,{scale:1.6,signal:controller.signal});if(view.document!==doc)return;const question=region.confidence==='verified'?questions.find(q=>q.id===region.questionId):null;view.items.push({...region,label:question?`${question.number}번 문항`:region.label,imageUrl:crop.url,imageWidth:crop.width,imageHeight:crop.height});}
+        for(const region of regions){const crop=await doc.cropRegion(n,region.rect,{scale:1.6,signal:controller.signal});if(view.document!==doc)return;const question=region.confidence==='verified'?questions.find(q=>q.id===region.questionId):null;view.items.push({...region,fingerprintVerified:doc.isKnownSample===true,label:question?`${question.number}번 문항`:region.label,imageUrl:crop.url,imageWidth:crop.width,imageHeight:crop.height});}
         selectInitialDocumentRegion(view);
         view.readPages=n;redraw();
       }
@@ -405,25 +456,26 @@ export function renderSource(container,ctx) {
     const item=view.items.find(r=>r.id===view.activeRegion),evidence=regionResults(ctx,view,item),routes=sourceResultRoutes(ctx,evidence.list);
     view.selected=new Set(resolveSourceSelection(ctx,[...view.selected]).map(r=>r.key));
     const selected=resolveSourceSelection(ctx,[...view.selected]),selectedCount=new Set(selected.map(r=>r.id)).size;
-    const counts=new Map(SOURCE_TABS.map(([tab])=>[tab,regionResults(ctx,view,item,tab).list.length]));
-    const selectable=routes.filter(r=>r.source);
-    const resultBody=!item?`<div class="sf-panel-empty"><p>${view.reading?'파일에서 문항 영역을 찾고 있습니다.':'업로드 문항을 선택하거나 원본에서 문항 영역을 지정해 주세요.'}</p></div>`:`<div class="sf-result-evidence"><strong>${esc(item.label)} · ${evidence.verified?'출처 확인':evidence.base?'텍스트가 일치하는 검색 후보':'일치하는 출처 없음'}</strong><p>${evidence.verified?'확인된 표본 PDF의 문항입니다.':evidence.base?'추출한 텍스트가 표본과 일치합니다. 원본을 비교해 확인해 주세요.':item.text?'수집한 DB 표본에서 같은 텍스트를 찾지 못했습니다.':'이 영역에서 비교할 텍스트를 추출하지 못했습니다. 업로드한 문항은 가운데에서 볼 수 있습니다.'}</p></div><div class="source-tabs" role="tablist" aria-label="유사문제 검색 조건">${SOURCE_TABS.map(([id,label])=>`<button type="button" role="tab" id="source-tab-${id}" aria-controls="source-results" aria-selected="${view.tab===id}" tabindex="${view.tab===id?'0':'-1'}" class="${view.tab===id?'active':''}" data-source-tab="${id}">${label}<small>${counts.get(id)}</small></button>`).join('')}</div><details class="sf-filter-details"><summary>검색 조건</summary><form id="source-text-form" class="source-search"><label class="field"><span>학년</span><select name="grade"><option value="">${evidence.base?`기준 문항 (${esc(evidence.base.grade)})`:'전체'}</option><option value="all" ${view.grade==='all'?'selected':''}>전체 학년</option>${grades.map(g=>`<option value="${esc(g)}" ${view.grade===g?'selected':''}>${esc(g)}</option>`).join('')}</select></label><label class="field"><span>정답 종류</span><select name="answerType">${['all','객관식','주관식','증명','O/X'].map(t=>`<option value="${t}" ${view.answerType===t?'selected':''}>${t==='all'?'전체':t}</option>`).join('')}</select></label><label class="field"><span>텍스트 및 수식 포함</span><input name="include" value="${esc(view.include)}" placeholder="포함할 내용"></label><label class="field"><span>텍스트 및 수식 제외</span><input name="exclude" value="${esc(view.exclude)}" placeholder="제외할 내용"></label><button type="button" class="text-btn" data-source-clear>초기화</button><button class="btn" type="submit">검색</button></form><button type="button" class="text-btn sf-settings-link" data-source-settings>유사문제 검색 설정</button></details><div class="sf-result-toolbar"><label class="checkbox"><input type="checkbox" data-source-all ${selectable.length&&selectable.every(r=>view.selected.has(r.key))?'checked':''} ${!selectable.length?'disabled':''}>현재 출처 결과 선택</label></div><div id="source-results" role="tabpanel" aria-labelledby="source-tab-${view.tab}">${routes.length?routes.map(entry=>sourceResultCard(ctx,view,entry,evidence)).join(''):`<div class="sf-panel-empty"><p>${evidence.base?'현재 조건에 맞는 출처 문항이 없습니다.':'일치하는 출처를 찾지 못했습니다.'}</p>${evidence.base?'<button class="text-btn" data-source-clear>검색 조건 초기화</button>':''}</div>`}</div>`;
+    const counts=new Map(SOURCE_RESULT_TABS.map(([tab])=>[tab,regionResults(ctx,view,item,tab).list.length]));
+    const selectable=routes.filter(r=>r.source),uploadable=view.items.filter(item=>item.imageUrl);
+    view.uploadSelected=new Set([...view.uploadSelected].filter(id=>view.items.some(item=>item.id===id)));
+    const uploadCount=view.uploadSelected.size;
+    const resultBody=!item?`<div class="sf-panel-empty"><p>${view.reading?'파일에서 문항 영역을 찾고 있습니다.':'업로드 문항을 선택하거나 원본에서 문항 영역을 지정해 주세요.'}</p></div>`:`<div class="sf-result-evidence"><strong>${esc(item.label)} · ${evidence.exactId?'완전 동일한 문항':evidence.base?'텍스트가 일치하는 검색 후보':'일치하는 출처 없음'}</strong><p>${evidence.exactId?'업로드한 원본과 동일한 문항을 찾았습니다.':evidence.base?'추출한 텍스트가 표본과 일치합니다. 원본을 비교해 확인해 주세요.':item.text?'수집한 DB 표본에서 같은 텍스트를 찾지 못했습니다.':'이 영역에서 비교할 텍스트를 추출하지 못했습니다. 업로드한 문항은 왼쪽에서 볼 수 있습니다.'}</p></div><div class="source-tabs" role="tablist" aria-label="유사문제 검색 조건">${SOURCE_RESULT_TABS.map(([id,label])=>`<button type="button" role="tab" id="source-tab-${id}" aria-controls="source-results" aria-selected="${view.tab===id}" tabindex="${view.tab===id?'0':'-1'}" class="${view.tab===id?'active':''}" data-source-tab="${id}">${label}<small>${counts.get(id)}</small></button>`).join('')}</div><details class="sf-filter-details"><summary>검색 조건</summary><form id="source-text-form" class="source-search"><label class="field"><span>학년</span><select name="grade"><option value="">${evidence.base?`기준 문항 (${esc(evidence.base.grade)})`:'전체'}</option><option value="all" ${view.grade==='all'?'selected':''}>전체 학년</option>${grades.map(g=>`<option value="${esc(g)}" ${view.grade===g?'selected':''}>${esc(g)}</option>`).join('')}</select></label><label class="field"><span>정답 종류</span><select name="answerType">${['all','객관식','주관식','증명','O/X'].map(t=>`<option value="${t}" ${view.answerType===t?'selected':''}>${t==='all'?'전체':t}</option>`).join('')}</select></label><label class="field"><span>텍스트 및 수식 포함</span><input name="include" value="${esc(view.include)}" placeholder="포함할 내용"></label><label class="field"><span>텍스트 및 수식 제외</span><input name="exclude" value="${esc(view.exclude)}" placeholder="제외할 내용"></label><button type="button" class="text-btn" data-source-clear>초기화</button><button class="btn" type="submit">검색</button></form><button type="button" class="text-btn sf-settings-link" data-source-settings>유사문제 검색 설정</button></details><div class="sf-result-toolbar"><label class="checkbox"><input type="checkbox" data-source-all ${selectable.length&&selectable.every(r=>view.selected.has(r.key))?'checked':''} ${!selectable.length?'disabled':''}>현재 출처 결과 선택</label></div><div id="source-results" role="tabpanel" aria-labelledby="source-tab-${view.tab}">${routes.length?routes.map(entry=>sourceResultCard(ctx,view,entry,evidence)).join(''):`<div class="sf-panel-empty"><p>${evidence.base?'현재 조건에 맞는 출처 문항이 없습니다.':'일치하는 출처를 찾지 못했습니다.'}</p>${evidence.base?'<button class="text-btn" data-source-clear>검색 조건 초기화</button>':''}</div>`}</div>`;
     const originalPanel=`<section class="sf-document-panel"><div class="sf-panel-header"><h2>${/\.pdf$/i.test(view.file.name)?'PDF 원본':'업로드 원본'}</h2><div class="sf-page-controls"><button class="sf-icon-button" data-source-page-prev aria-label="이전 페이지" ${view.page<=1?'disabled':''}>${icon('chevron-left')}</button><label><input type="number" min="1" max="${view.document.pageCount}" value="${view.page}" data-source-page-number aria-label="페이지 번호"><span>/ ${view.document.pageCount}</span></label><button class="sf-icon-button" data-source-page-next aria-label="다음 페이지" ${view.page>=view.document.pageCount?'disabled':''}>${icon('chevron')}</button></div></div><div class="sf-document-tools"><button class="btn ${view.manual?'primary':''}" data-source-manual aria-pressed="${view.manual}" ${view.cropBusy?'disabled':''}>${view.manual?'영역 선택 취소':'문항 영역 직접 선택'}</button><span>${view.manual?'원본 위에서 문항 영역을 드래그하세요.':'문항 영역을 수정한 뒤 문항 목록으로 돌아갈 수 있어요.'}</span></div><div class="sf-page-scroll ${view.manual?'is-selecting':''}"><div class="sf-page-sheet" data-source-page-host><p class="sf-panel-empty">페이지를 불러오고 있습니다.</p></div></div></section>`;
     const bulk=selectedCount?`<div class="sf-bulk"><strong>${selectedCount}문항 선택</strong><button class="text-btn" data-source-selection-clear>선택 해제</button><button class="btn primary" data-source-acquire>선택 문항 구매 · 이용</button></div>`:'';
-    const uploadedPanel=`<section class="sf-upload-panel"><div class="sf-panel-header"><h2>업로드 문항 <span>${view.items.length}</span></h2>${view.reading?'<small role="status">읽는 중…</small>':'<small>현재 문항은 파란색으로 표시</small>'}</div><div class="sf-upload-list" data-source-items aria-label="분리한 업로드 문항 목록">${view.items.length?sourceUploadCards(ctx,view):`<div class="sf-panel-empty"><p>${view.reading?'문항 영역을 찾고 있습니다.':'자동으로 분리한 문항이 없습니다.'}</p>${!view.reading?'<button class="btn" data-source-edit-region>문항 영역 직접 선택</button>':''}</div>`}</div>${view.document.detectionLimitReached?'<p class="sf-detection-note">자동 분리는 100개까지 표시합니다. 필요한 영역은 직접 선택해 주세요.</p>':''}</section>`;
-    const selectedPanel=`<section class="sf-selected-panel"><div class="sf-panel-header"><h2>선택한 문항</h2></div><div class="sf-selected-body">${item?`<div class="sf-selected-heading"><strong>${esc(item.label)}</strong><span>${item.pageNumber}페이지</span></div>${item.imageUrl?`<div class="sf-selected-image"><img src="${esc(item.imageUrl)}" alt="${esc(item.label)} · 업로드 원본 전체" ${item.imageWidth&&item.imageHeight?`width="${Number(item.imageWidth)}" height="${Number(item.imageHeight)}"`:''}></div><small class="sf-selected-note">업로드 원본</small>`:'<div class="sf-panel-empty" role="status"><p>선택한 문항 이미지를 불러오고 있습니다.</p></div>'}`:`<div class="sf-panel-empty" ${view.reading?'role="status"':''}><p>${view.reading?'파일에서 첫 문항을 찾고 있습니다.':'업로드 목록에서 문항을 선택해 주세요.'}</p>${!view.reading&&!view.items.length?'<small>PDF 원본 / 영역 수정에서 문항을 직접 지정할 수 있습니다.</small>':''}</div>`}</div></section>`;
+    const uploadedPanel=`<section class="sf-upload-panel"><div class="sf-panel-header"><h2>업로드 문항 <span>${view.items.length}</span></h2>${view.reading?'<small role="status">읽는 중…</small>':'<small>현재 문항은 파란색으로 표시</small>'}</div><div class="sf-upload-toolbar"><label class="checkbox"><input type="checkbox" data-source-upload-all ${uploadable.length&&uploadable.every(item=>view.uploadSelected.has(item.id))?'checked':''} ${!uploadable.length||view.uploadSaving?'disabled':''}>전체 선택</label><button type="button" class="btn primary" data-source-save-uploads ${!uploadCount||view.uploadSaving?'disabled':''}>${view.uploadSaving?'저장 중…':'선택 문항 DB화'}${uploadCount?` (${uploadCount})`:''}</button></div><div class="sf-upload-list" data-source-items aria-label="분리한 업로드 문항 목록">${view.items.length?sourceUploadCards(ctx,view):`<div class="sf-panel-empty"><p>${view.reading?'문항 영역을 찾고 있습니다.':'자동으로 분리한 문항이 없습니다.'}</p>${!view.reading?'<button class="btn" data-source-edit-region>문항 영역 직접 선택</button>':''}</div>`}</div>${view.document.detectionLimitReached?'<p class="sf-detection-note">자동 분리는 100개까지 표시합니다. 필요한 영역은 직접 선택해 주세요.</p>':''}</section>`;
     const previousItems=container.querySelector('[data-source-items]');
     const previousScroll=previousItems?.scrollTop??view.uploadScroll??0;
     const previousScrollLeft=previousItems?.scrollLeft??view.uploadScrollLeft??0;
     view.uploadScroll=previousScroll;view.uploadScrollLeft=previousScrollLeft;
     const resultScroll=view.renderedRegion===view.activeRegion?container.querySelector('.sf-result-content')?.scrollTop||0:0;
-    container.innerHTML=`${styles}<section id="source-finder" class="sf-workspace sf-document-workspace">${header}<div class="sf-workbench-grid ${view.showOriginal?'is-original':''}">${view.showOriginal?originalPanel:uploadedPanel}${selectedPanel}<section class="sf-document-results"><div class="sf-panel-header"><h2>선택 문항의 출처</h2></div><div class="sf-result-content">${resultBody}<p class="sf-results-note">출처 문항은 상품별 이용 권한에 따라 숫자를 흐리게 표시합니다. 문제은행 표본은 같은 원출처 문항으로 구성한 체험 목록입니다.</p></div></section></div>${bulk?`<div class="sf-workbench-selection">${bulk}</div>`:''}</section>`;
+    container.innerHTML=`${styles}<section id="source-finder" class="sf-workspace sf-document-workspace">${header}<div class="sf-workbench-grid ${view.showOriginal?'is-original':''}">${view.showOriginal?originalPanel:uploadedPanel}<section class="sf-document-results"><div class="sf-panel-header"><h2>선택 문항의 출처</h2></div><div class="sf-result-content">${resultBody}<p class="sf-results-note">출처 문항은 상품별 이용 권한에 따라 숫자를 흐리게 표시합니다. 문제은행 표본은 같은 원출처 문항으로 구성한 체험 목록입니다.</p></div></section></div>${bulk?`<div class="sf-workbench-selection">${bulk}</div>`:''}</section>`;
     const changePage=n=>{view.selectionVersion=(view.selectionVersion||0)+1;view.page=Math.max(1,Math.min(view.document.pageCount,Math.trunc(Number(n)||1)));view.manual=false;const first=view.items.find(r=>r.pageNumber===view.page);if(first)selectDocumentRegion(view,first.id);else{view.activeRegion='';view.baseId='';}redraw();};
     container.querySelector('[data-source-page-prev]')?.addEventListener('click',()=>changePage(view.page-1));container.querySelector('[data-source-page-next]')?.addEventListener('click',()=>changePage(view.page+1));container.querySelector('[data-source-page-number]')?.addEventListener('change',e=>changePage(e.target.value));
     container.querySelector('[data-source-manual]')?.addEventListener('click',()=>{view.manual=!view.manual;redraw();});
     container.querySelector('[data-source-edit-region]')?.addEventListener('click',()=>{view.showOriginal=true;view.manual=true;redraw();});
     container.querySelectorAll('[data-source-item]').forEach(b=>b.onclick=()=>{selectDocumentRegion(view,b.dataset.sourceItem);redraw();});
-    bindResultActions(container,container,ctx,view,redraw,routes);if(view.showOriginal)void showDocumentPage(container,ctx,view,redraw);
+    bindResultActions(container,container,ctx,view,redraw,routes);const uploadAll=container.querySelector('[data-source-upload-all]');if(uploadAll)uploadAll.indeterminate=uploadCount>0&&uploadCount<uploadable.length;if(view.showOriginal)void showDocumentPage(container,ctx,view,redraw);
     const itemList=container.querySelector('[data-source-items]');
     if(itemList){
       itemList.scrollTop=previousScroll;itemList.scrollLeft=previousScrollLeft;

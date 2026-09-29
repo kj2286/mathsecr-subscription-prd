@@ -1,3 +1,4 @@
+import {listUploadedDBs,openUploadedDBSave,renderUploadedDB} from './uploaded-db.js';
 import {openBankQuestionAccess,openQuestionSelectionAccess} from './bank-commerce.js';
 import {createDBCommerce} from './db-commerce.js';
 import {schoolDBTable,renderSchoolDetail} from './school-catalog.js';
@@ -135,6 +136,10 @@ function renderHome(){page.innerHTML=`<section class="workspace account-wrap">${
 let originalDetail=null;try{originalDetail=JSON.parse(sessionStorage.getItem('mathsecr-prototype:original-detail')||'null');}catch{}
 function openOriginalDetail(record){originalDetail=record;try{sessionStorage.setItem('mathsecr-prototype:original-detail',JSON.stringify(record));}catch{}go('original-detail');}
 const ctx={store,dbs,questions,grades,ui,go,subscribe,requestQuestion,addQuestions,openDB,previewDB,openOriginalDetail,searchLibrary,purchaseDB,notifySchool,getVariant};
+ctx.uploadedDBs=[];
+ctx.saveUploadedQuestions=payload=>openUploadedDBSave(ctx,payload);
+ctx.openUploadedDB=(container,id,title)=>renderUploadedDB(container,ctx,id,title);
+try{ctx.uploadedDBs=await listUploadedDBs();}catch{toast('저장한 업로드 DB를 불러오지 못했습니다. 브라우저 저장 설정을 확인해 주세요.');}
 ctx.commerce=createDBCommerce(ctx,{onChange:()=>render()});
 let previousScope='';
 function render(){disposeLibraryPicker();disposeLibraryPicker=()=>{};nav();const variant=getVariant();if(variant!=='a')disposeOriginal();let path=location.hash.slice(1)||'library';try{path=decodeURIComponent(path);}catch{path='library';}const parts=path.split('/');const scope=parts[0]==='library'&&!['detail','cart'].includes(parts[1])?parts.slice(0,3).join('/'):'';if(scope)resetCatalogScope(libraryFilter,previousScope,scope);if(scope)previousScope=scope;document.title=`${labels[parts[0]]||'수학비서'} · 구독 문제은행`;try{switch(parts[0]){case 'shop':renderStorefront(page,ctx,parts);break;case 'home':renderHome();break;case 'library':if(parts[1]==='cart'){ctx.commerce.render(page);bindLibrarySidebar();break;}if(parts[1]==='detail'){renderSchoolDetail(page,ctx,parts[2]);bindQuestions(page,'db');bindDBActions();bindLibrarySidebar();break;}if(useOriginalLibrary(variant,parts,libraryFilter.sideSearch)){renderOriginal(page,ctx,parts);break;}disposeOriginal();if((!parts[1]||parts[1]==='root')&&!libraryFilter.sideSearch){renderLibraryHub(page,ctx);bindLibrarySidebar();}else renderLibrary(parts);break;case 'bank':if(variant==='a'){renderOriginal(page,ctx,parts);break;}if(variant==='c'){renderBankStudio(page,ctx,parts);bindLibrarySidebar();break;}if(!parts[1]){renderLibraryHub(page,ctx,{focus:'bank'});bindLibrarySidebar();}else renderBank(parts);break;case 'mydb':renderMyDBWorkspace(page,ctx,parts);break;case 'original-detail':if(originalDetail)renderDBDetail(page,ctx,originalDetail);else go('library');break;case 'source':renderSourceFinder(page,ctx);break;case 'papers':renderPapers(page,ctx,parts);break;case 'account':renderAccount(page,ctx);break;case 'notifications':renderNotifications(page,ctx);break;case 'search':renderSearch();break;default:go('library');}}catch(err){console.error(err);page.innerHTML='<div class="workspace"><div class="empty"><h3>화면을 불러오지 못했습니다.</h3><p>새로고침 후 다시 확인해 주세요.</p></div></div>';}}
